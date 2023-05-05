@@ -1,0 +1,39 @@
+from langchain import HuggingFaceHub
+from langchain import LLMChain
+from langchain import PromptTemplate
+from langchain.document_loaders import UnstructuredHTMLLoader
+from langchain.document_loaders import BSHTMLLoader
+from langchain.document_loaders.sitemap import SitemapLoader
+from langchain.text_splitter import MarkdownTextSplitter
+import os
+# fixes a bug with asyncio and jupyter
+import nest_asyncio
+
+nest_asyncio.apply()
+
+os.environ["HUGGINGFACEHUB_API_TOKEN"]=""
+llm=HuggingFaceHub(repo_id="gpt2", model_kwargs={"temperature": 0.7, "max_length":64})
+#prompt="howdy"
+# template = """Question: {question}
+# Lets think step by step.
+# Answer: """
+# prompt = PromptTemplate(template=template, input_variables=["question"])
+# prompt.format(question='howdy')
+# question='howdy'
+# llm_chain=LLMChain(prompt=prompt, llm=llm)
+# print(llm_chain.run(question))
+
+loader = SitemapLoader(
+    "https://langchain.readthedocs.io/sitemap.xml",
+    filter_urls=["https://python.langchain.com/en/latest/"]
+)
+documents = loader.load()
+
+# loader = UnstructuredHTMLLoader("example_data/fake-content.html")
+# data = loader.load()
+# print(data)
+markdown_text=documents
+markdown_splitter = MarkdownTextSplitter(chunk_size=100, chunk_overlap=0)
+docs = markdown_splitter.create_documents([markdown_text])
+
+print(documents[0])
